@@ -103,10 +103,10 @@
 		scene.add(yAxis);
 
 		// Create axis labels (X, Y, Z)
-		const xLabel = await createLabel('High Interest', [axisLength - 1.15, -0.2, 0]);
-		const negXLabel = await createLabel('Low Interest', [-1 * (axisLength - 0.05), -0.2, 0]);
-		const negYLabel = await createLabel('Skilled', [-0.25, axisLength + labelSize, 0]);
-		const yLabel = await createLabel('Low Skill', [-0.4, -1 * (axisLength + 2 * labelSize), 0]);
+		const xLabel = await createLabel('High Interest', [axisLength - 1.15, -0.2, -0.2]);
+		const negXLabel = await createLabel('Low Interest', [-1 * (axisLength - 0.05), -0.2, -0.2]);
+		const negYLabel = await createLabel('Proficient', [-0.4, axisLength + labelSize, -0.2]);
+		const yLabel = await createLabel('Beginner', [-0.4, -1 * (axisLength + 2 * labelSize), -0.2]);
 
 		scene.add(xLabel);
 		scene.add(negXLabel);
