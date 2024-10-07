@@ -10,7 +10,6 @@
 			<th scope="col" class="px-6 py-3">Skill</th>
 			<th>Level</th>
 			<th>Interest</th>
-			<th>Usefulness</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -21,7 +20,6 @@
 				</th>
 				<td class="px-6 py-4 opacity-85">{skill.level}</td>
 				<td class="px-6 py-4 opacity-85">{skill.interest}</td>
-				<td class="px-6 py-4 opacity-85">{skill.usefulness}</td>
 			</tr>
 		{/each}
 	</tbody>

@@ -4,20 +4,20 @@
 	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 	import type { PerspectiveCamera, WebGLRenderer, Scene } from 'three';
-	import type { OrbitControls as OrbitControlsType } from 'three/examples/jsm/controls/OrbitControls';
 	import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 	import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 
-	import type { Skill } from './types';
+	import type { Skill } from '../../../routes/types';
+	import colors from './colors';
 
 	const axisLength = 3;
-	const labelSize = 0.15;
+	const labelSize = 0.25;
 
 	let container: HTMLDivElement | null = null; // Container for the Three.js canvas
 	let renderer: WebGLRenderer;
 	let scene: Scene;
 	let camera: PerspectiveCamera;
-	let controls: OrbitControlsType;
+	let controls: OrbitControls;
 
 	const { skills }: { skills: Skill[] } = $props();
 
@@ -42,13 +42,8 @@
 	async function createLabel(text: string, position: [number, number, number]) {
 		const fontLoader = new FontLoader();
 
-		const font = await new Promise((resolve, reject) => {
-			fontLoader.load(
-				'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json',
-				resolve,
-				undefined,
-				reject
-			);
+		const font: any = await new Promise((resolve, reject) => {
+			fontLoader.load('src/lib/PP_Supply_Sans_Regular.json', resolve, undefined, reject);
 		});
 
 		const textGeometry = new TextGeometry(text, {
@@ -67,29 +62,43 @@
 		// Scene, camera, and renderer setup
 		scene = new THREE.Scene();
 		camera = new THREE.PerspectiveCamera(
-			75,
+			50,
 			container!.clientWidth / container!.clientHeight,
 			0.1,
 			1000
 		);
 		renderer = new THREE.WebGLRenderer({ antialias: true });
 		renderer.setSize(container!.clientWidth, container!.clientHeight);
-		renderer.setClearColor(0xffffff, 0);
+		renderer.setClearColor('#000', 0);
 
 		container!.appendChild(renderer.domElement);
 
 		// Add lighting to the scene
-		const light = new THREE.PointLight(0xffffff, 1, 100);
-		light.position.set(10, 10, 10);
-		scene.add(light);
-		scene.add(new THREE.AmbientLight(0x404040));
+		const ambient = new THREE.AmbientLight('white', 1.5);
+		scene.add(ambient);
+
+		const light1 = new THREE.PointLight('#DD60C5', 100, 100);
+		light1.position.set(5, 6, 1);
+		scene.add(light1);
+		const light2 = new THREE.PointLight('#DD60C5', 100, 100);
+		light2.position.set(3, 0, 5);
+		scene.add(light2);
+
+		const pulseOffsets = pointsData.map(() => Math.random() * Math.PI * 2);
 
 		// Create scatter plot points
-		pointsData.forEach((point) => {
-			const geometry = new THREE.SphereGeometry(0.1, 32, 32); // Small spheres for points
-			const material = new THREE.MeshBasicMaterial({ color: '#36D8E1' });
+		pointsData.forEach((point, i) => {
+			const geometry = new THREE.SphereGeometry(0.1, 32, 32);
+			const material = new THREE.MeshStandardMaterial({
+				opacity: 0.5,
+				color: colors[i % colors.length],
+				transparent: true
+			});
 			const sphere = new THREE.Mesh(geometry, material);
 			sphere.position.set(point.x, point.y, 0);
+			// Add a random pulse offset for each sphere
+			sphere.userData.pulseOffset = pulseOffsets[i];
+			sphere.userData.isSphere = true;
 			scene.add(sphere);
 		});
 
@@ -103,10 +112,10 @@
 		scene.add(yAxis);
 
 		// Create axis labels (X, Y, Z)
-		const xLabel = await createLabel('High Interest', [axisLength - 1.15, -0.2, -0.2]);
-		const negXLabel = await createLabel('Low Interest', [-1 * (axisLength - 0.05), -0.2, -0.2]);
-		const negYLabel = await createLabel('Proficient', [-0.4, axisLength + labelSize, -0.2]);
-		const yLabel = await createLabel('Beginner', [-0.4, -1 * (axisLength + 2 * labelSize), -0.2]);
+		const xLabel = await createLabel('OBSESSED', [axisLength + 0.1, -0.125, 0]);
+		const negXLabel = await createLabel('INDIFFERENT', [-1 * (axisLength + 2.1), -0.125, 0]);
+		const negYLabel = await createLabel('PROFICIENT', [-0.9, axisLength + labelSize, 0]);
+		const yLabel = await createLabel('BEGINNER', [-0.7, -1 * (axisLength + 2 * labelSize), 0]);
 
 		scene.add(xLabel);
 		scene.add(negXLabel);
@@ -115,12 +124,23 @@
 		scene.add(yLabel);
 
 		// Camera position and controls
-		camera.position.z = 5;
+		camera.position.z = 8;
 		controls = new OrbitControls(camera, renderer.domElement);
 
 		// Animation loop
 		const animate = () => {
 			requestAnimationFrame(animate);
+			const time = performance.now() * 0.001; // Use time to drive the animation
+
+			// Pulse the spheres by modifying their scale
+			scene.children.forEach((object) => {
+				if (object.userData.isSphere) {
+					// Ensure we only apply to meshes (spheres)
+					const scale = 1 + 0.4 * Math.sin(time + object.userData.pulseOffset) ** 2;
+					object.scale.set(scale, scale, scale); // Apply scale uniformly
+				}
+			});
+
 			controls.update();
 			renderer.render(scene, camera);
 		};

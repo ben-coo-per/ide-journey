@@ -1,6 +1,6 @@
 <script lang="ts">
 	import SkillTable from './SkillTable.svelte';
-	import ScatterPlot3D from './ScatterPlot3D.svelte';
+	import ScatterPlot3D from '../lib/components/ScatterPlot3D/ScatterPlot3D.svelte';
 	const { data } = $props();
 </script>
 
