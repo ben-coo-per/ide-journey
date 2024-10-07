@@ -20,6 +20,12 @@
 
 	const { skills }: { skills: Skill[] } = $props();
 
+	let orbitTouched = $state(false);
+	let resetTimeout: any;
+	const resetTime = 5000; // 5 seconds timeout
+	let isResetting = false;
+	const resetDuration = 2; // Duration of the smooth movement in seconds
+
 	// Points data for the scatter plot
 	const pointsData = skills.map((skill) => ({
 		x: skill.interest - 4,
@@ -126,11 +132,71 @@
 		// Camera position and controls
 		camera.position.z = 8;
 		controls = new OrbitControls(camera, renderer.domElement);
+		const originalPosition = camera.position.clone();
+
+		controls.addEventListener('start', () => {
+			orbitTouched = true;
+			isResetting = false;
+
+			if (resetTimeout) {
+				clearTimeout(resetTimeout);
+			}
+
+			// Set a new timeout to reset the camera after 5 seconds of inactivity
+			resetTimeout = setTimeout(() => {
+				isResetting = true;
+				startCameraReset();
+			}, resetTime);
+		});
+
+		function startCameraReset() {
+			const startPosition = camera.position.clone(); // Capture current position
+			const startTarget = controls.target.clone(); // Capture current target
+			const startTime = performance.now();
+
+			const animateReset = () => {
+				if (!isResetting) return; // Stop the reset if interrupted by user input
+
+				const elapsedTime = (performance.now() - startTime) / 1000; // Convert to seconds
+				const t = Math.min(elapsedTime / resetDuration, 1); // Progress ratio (clamped between 0 and 1)
+
+				// Smoothly interpolate the camera position
+				camera.position.lerpVectors(startPosition, originalPosition, t);
+
+				controls.update(); // Update controls with new position/target
+
+				// If not finished, keep animating
+				if (t < 1) {
+					requestAnimationFrame(animateReset);
+				} else {
+					isResetting = false; // Reset complete
+				}
+			};
+
+			// Start the reset animation
+			animateReset();
+		}
+
+		function animateCamera(time: number) {
+			if (orbitTouched) return;
+			const radius = 8; // Fixed distance from the center
+			const oscillationSpeed = 0.5; // Speed of the nudge back and forth
+
+			const nudge = 0.1 * Math.sin(time * oscillationSpeed); // Oscillate between -maxAngle and +maxAngle
+
+			const x = radius * Math.sin(nudge); // Slight nudge along X
+			const z = radius * Math.cos(nudge); // Keep Z adjusted to maintain radius distance
+
+			camera.position.set(x, camera.position.y, z); // Nudge the camera along X and Z
+			camera.lookAt(new THREE.Vector3(0, 0, 0)); // Keep looking at the center
+		}
 
 		// Animation loop
 		const animate = () => {
 			requestAnimationFrame(animate);
 			const time = performance.now() * 0.001; // Use time to drive the animation
+
+			animateCamera(time);
 
 			// Pulse the spheres by modifying their scale
 			scene.children.forEach((object) => {
