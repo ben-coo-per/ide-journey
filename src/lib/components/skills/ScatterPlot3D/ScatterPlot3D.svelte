@@ -8,7 +8,6 @@
 	import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 
 	import type { Skill } from '../types';
-	import colors from './colors';
 
 	const axisLength = 3;
 	const labelSize = 0.25;
@@ -44,12 +43,7 @@
 		const fontLoader = new FontLoader();
 
 		const font: any = await new Promise((resolve, reject) => {
-			fontLoader.load(
-				'src/lib/components/skills/ScatterPlot3D/PP_Supply_Sans_Regular.json',
-				resolve,
-				undefined,
-				reject
-			);
+			fontLoader.load('/src/lib/assets/PP_Supply_Sans_Regular.json', resolve, undefined, reject);
 		});
 
 		const textGeometry = new TextGeometry(text, {
