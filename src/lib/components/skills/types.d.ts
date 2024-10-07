@@ -4,4 +4,5 @@ export type Skill = {
 	hardness: number;
 	usefulness: number;
 	level: number;
+	color?: string;
 };

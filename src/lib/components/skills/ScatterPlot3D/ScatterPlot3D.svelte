@@ -24,7 +24,8 @@
 	// Points data for the scatter plot
 	const pointsData = skills.map((skill) => ({
 		x: skill.interest - 4,
-		y: skill.level - 4
+		y: skill.level - 4,
+		color: skill.color
 	}));
 
 	// Function to create an axis (X, Y, or Z)
@@ -95,8 +96,8 @@
 		pointsData.forEach((point, i) => {
 			const geometry = new THREE.SphereGeometry(0.1, 32, 32);
 			const material = new THREE.MeshStandardMaterial({
-				opacity: 0.5,
-				color: colors[i % colors.length],
+				opacity: 0.85,
+				color: point.color,
 				transparent: true
 			});
 			const sphere = new THREE.Mesh(geometry, material);

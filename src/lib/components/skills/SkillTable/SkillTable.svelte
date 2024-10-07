@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Skill } from '../types';
+	import IndicatorSphere from './IndicatorSphere.svelte';
 
 	const { skills }: { skills: Skill[] } = $props();
 </script>
@@ -10,7 +11,7 @@
 	<table class="w-full">
 		<thead class="rounded-lgtext-xs uppercase text-theme-2">
 			<tr>
-				<th scope="col" class="px-6 py-3">Skill</th>
+				<th class="px-6 py-3">Skill</th>
 				<th>Level <span class="opacity-75">(1-7)</span></th>
 				<th>Interest <span class="opacity-75">(1-7)</span></th>
 			</tr>
@@ -18,7 +19,11 @@
 		<tbody>
 			{#each skills as skill}
 				<tr class="border-t border-theme-2 border-opacity-25">
-					<th scope="row" class="whitespace-nowrap px-6 py-4 font-medium">
+					<th
+						scope="row"
+						class="flex flex-row gap-3 whitespace-nowrap px-6 py-4 align-middle font-medium"
+					>
+						<IndicatorSphere color={skill.color}></IndicatorSphere>
 						{skill.skill}
 					</th>
 					<td class="px-6 py-4 opacity-85">{skill.level}</td>
