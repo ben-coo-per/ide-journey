@@ -5,9 +5,4 @@
 	const { skills } = data;
 </script>
 
-<svelte:head>
-	<title>Home</title>
-	<meta name="description" content="Ben's IDE Journey" />
-</svelte:head>
-
 <SkillTable {skills} />

@@ -15,7 +15,11 @@
 	<main>
 		<!-- svelte-ignore slot_element_deprecated -->
 		<div class="container mx-auto flex max-w-3xl flex-col gap-0">
-			<slot></slot>
+			<div
+				class="w-full rounded-lg border border-theme-2 border-opacity-25 bg-bg-1 text-left text-sm text-text-1"
+			>
+				<slot></slot>
+			</div>
 		</div>
 	</main>
 
