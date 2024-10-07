@@ -52,7 +52,7 @@
 			height: 0.05
 		});
 
-		const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+		const textMaterial = new THREE.MeshBasicMaterial({ color: '#DDFDFF' });
 		const labelMesh = new THREE.Mesh(textGeometry, textMaterial);
 		labelMesh.position.set(...position);
 		return labelMesh;
@@ -103,8 +103,8 @@
 		});
 
 		// Create X, Y, and Z axes with range -axisLength to +axisLength
-		const xAxis = createAxis([-1 * axisLength, 0, 0], [axisLength, 0, 0], '#fff');
-		const yAxis = createAxis([0, -1 * axisLength, 0], [0, axisLength, 0], '#fff');
+		const xAxis = createAxis([-1 * axisLength, 0, 0], [axisLength, 0, 0], '#DD60C5');
+		const yAxis = createAxis([0, -1 * axisLength, 0], [0, axisLength, 0], '#DD60C5');
 
 		// Add axes to the scene
 		scene.add(xAxis);
