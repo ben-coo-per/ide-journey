@@ -10,7 +10,8 @@
 	import type { Skill } from '../types';
 
 	const axisLength = 3;
-	const labelSize = 0.25;
+	const axisLabelSize = 0.25;
+	const pointLabelSize = 0.1;
 
 	let container: HTMLDivElement | null = null; // Container for the Three.js canvas
 	let renderer: WebGLRenderer;
@@ -30,7 +31,7 @@
 	const pointsData = skills.map((skill) => ({
 		x: skill.interest - 4,
 		y: skill.level - 4,
-		color: skill.color
+		...skill
 	}));
 
 	// Function to create an axis (X, Y, or Z)
@@ -45,7 +46,12 @@
 		return line;
 	}
 
-	async function createLabel(text: string, position: [number, number, number]) {
+	async function createLabel(
+		text: string,
+		size: number,
+		position: [number, number, number],
+		height = 0.05
+	) {
 		const fontLoader = new FontLoader();
 
 		const font: any = await new Promise((resolve, reject) => {
@@ -54,8 +60,8 @@
 
 		const textGeometry = new TextGeometry(text, {
 			font: font,
-			size: labelSize,
-			height: 0.05
+			size: size,
+			height: height
 		});
 
 		const textMaterial = new THREE.MeshBasicMaterial({ color: '#DDFDFF' });
@@ -93,7 +99,7 @@
 		const pulseOffsets = pointsData.map(() => Math.random() * Math.PI * 2);
 
 		// Create scatter plot points
-		pointsData.forEach((point, i) => {
+		pointsData.forEach(async (point, i) => {
 			const geometry = new THREE.SphereGeometry(0.1, 32, 32);
 			const material = new THREE.MeshStandardMaterial({
 				opacity: 0.85,
@@ -101,10 +107,23 @@
 				transparent: true
 			});
 			const sphere = new THREE.Mesh(geometry, material);
+			const plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+			const label = await createLabel(
+				point.skill,
+				pointLabelSize,
+				[point.x, point.y + 0.2, 0.025 * i * plusOrMinus],
+				0.025
+			);
+
 			sphere.position.set(point.x, point.y, 0);
+
 			// Add a random pulse offset for each sphere
 			sphere.userData.pulseOffset = pulseOffsets[i];
+			label.userData.pulseOffset = pulseOffsets[i];
 			sphere.userData.isSphere = true;
+			label.userData.isPointLabel = true;
+
+			scene.add(label);
 			scene.add(sphere);
 		});
 
@@ -118,10 +137,22 @@
 		scene.add(yAxis);
 
 		// Create axis labels (X, Y, Z)
-		const xLabel = await createLabel('OBSESSED', [axisLength + 0.1, -0.125, 0]);
-		const negXLabel = await createLabel('INDIFFERENT', [-1 * (axisLength + 2.1), -0.125, 0]);
-		const negYLabel = await createLabel('PROFICIENT', [-0.9, axisLength + labelSize, 0]);
-		const yLabel = await createLabel('BEGINNER', [-0.7, -1 * (axisLength + 2 * labelSize), 0]);
+		const xLabel = await createLabel('OBSESSED', axisLabelSize, [axisLength + 0.1, -0.125, 0]);
+		const negXLabel = await createLabel('INDIFFERENT', axisLabelSize, [
+			-1 * (axisLength + 2.1),
+			-0.125,
+			0
+		]);
+		const negYLabel = await createLabel('PROFICIENT', axisLabelSize, [
+			-0.9,
+			axisLength + axisLabelSize,
+			0
+		]);
+		const yLabel = await createLabel('BEGINNER', axisLabelSize, [
+			-0.7,
+			-1 * (axisLength + 2 * axisLabelSize),
+			0
+		]);
 
 		scene.add(xLabel);
 		scene.add(negXLabel);
@@ -151,7 +182,6 @@
 
 		function startCameraReset() {
 			const startPosition = camera.position.clone(); // Capture current position
-			const startTarget = controls.target.clone(); // Capture current target
 			const startTime = performance.now();
 
 			const animateReset = () => {
@@ -204,6 +234,11 @@
 					// Ensure we only apply to meshes (spheres)
 					const scale = 1 + 0.4 * Math.sin(time + object.userData.pulseOffset) ** 2;
 					object.scale.set(scale, scale, scale); // Apply scale uniformly
+				}
+				if (object.userData.isPointLabel) {
+					// gently raise & lower label
+					const delta_y = 0.0005 * Math.sin(time + object.userData.pulseOffset);
+					object.position.y += delta_y;
 				}
 			});
 
