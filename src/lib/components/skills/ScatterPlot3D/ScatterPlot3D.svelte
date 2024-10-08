@@ -50,7 +50,8 @@
 		text: string,
 		size: number,
 		position: [number, number, number],
-		height = 0.05
+		height = 0.05,
+		color = '#DDFDFF'
 	) {
 		const fontLoader = new FontLoader();
 
@@ -64,7 +65,7 @@
 			height: height
 		});
 
-		const textMaterial = new THREE.MeshBasicMaterial({ color: '#DDFDFF' });
+		const textMaterial = new THREE.MeshBasicMaterial({ color: color });
 		const labelMesh = new THREE.Mesh(textGeometry, textMaterial);
 		labelMesh.position.set(...position);
 		return labelMesh;
@@ -137,22 +138,34 @@
 		scene.add(yAxis);
 
 		// Create axis labels (X, Y, Z)
-		const xLabel = await createLabel('OBSESSED', axisLabelSize, [axisLength + 0.1, -0.125, 0]);
-		const negXLabel = await createLabel('INDIFFERENT', axisLabelSize, [
-			-1 * (axisLength + 2.1),
-			-0.125,
-			0
-		]);
-		const negYLabel = await createLabel('PROFICIENT', axisLabelSize, [
-			-0.9,
-			axisLength + axisLabelSize,
-			0
-		]);
-		const yLabel = await createLabel('BEGINNER', axisLabelSize, [
-			-0.7,
-			-1 * (axisLength + 2 * axisLabelSize),
-			0
-		]);
+		const xLabel = await createLabel(
+			'OBSESSED',
+			axisLabelSize,
+			[axisLength + 0.1, -0.125, 0],
+			0.05,
+			'#B3E4E6'
+		);
+		const negXLabel = await createLabel(
+			'INDIFFERENT',
+			axisLabelSize,
+			[-1 * (axisLength + 2.1), -0.125, 0],
+			0.05,
+			'#B3E4E6'
+		);
+		const negYLabel = await createLabel(
+			'PROFICIENT',
+			axisLabelSize,
+			[-0.9, axisLength + axisLabelSize, 0],
+			0.05,
+			'#B3E4E6'
+		);
+		const yLabel = await createLabel(
+			'BEGINNER',
+			axisLabelSize,
+			[-0.7, -1 * (axisLength + 2 * axisLabelSize), 0],
+			0.05,
+			'#B3E4E6'
+		);
 
 		scene.add(xLabel);
 		scene.add(negXLabel);

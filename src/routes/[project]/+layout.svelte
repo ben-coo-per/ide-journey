@@ -12,7 +12,7 @@
 <div class="app">
 	<Header currentProject={data.project}></Header>
 	<ScatterPlot3D {skills}></ScatterPlot3D>
-	<main>
+	<main class="pb-10">
 		<!-- svelte-ignore slot_element_deprecated -->
 		<div class="container mx-auto flex max-w-3xl flex-col gap-0">
 			<div

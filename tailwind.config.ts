@@ -9,6 +9,7 @@ export default {
 				'bg-1': '#11141c',
 				'bg-2': '#252a36',
 				'text-1': '#DDFDFF',
+				'text-2': '#B3E4E6',
 				'theme-1': '#36D8E1',
 				'theme-2': '#DD60C5',
 				'theme-3': '#1D54C4',
