@@ -56,7 +56,7 @@
 		const fontLoader = new FontLoader();
 
 		const font: any = await new Promise((resolve, reject) => {
-			fontLoader.load('/src/lib/assets/PP_Supply_Sans_Regular.json', resolve, undefined, reject);
+			fontLoader.load('/PP_Supply_Sans_Regular.json', resolve, undefined, reject);
 		});
 
 		const textGeometry = new TextGeometry(text, {
