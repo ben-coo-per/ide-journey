@@ -7,7 +7,7 @@
 	import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 	import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 
-	import type { SkillCheckpoint } from '../types';
+	import type { SkillCheckpoint } from '../../../types';
 
 	const axisLength = 3;
 	const axisLabelSize = 0.25;

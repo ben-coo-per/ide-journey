@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { ScatterPlot3D } from '$lib/components/skills/ScatterPlot3D/index';
 	import StarFieldBG from '$lib/components/StarFieldBG.svelte';
 	import Header from '$lib/components/Header.svelte';
@@ -6,11 +6,11 @@
 
 	const { data } = $props();
 
-	const { skills } = data;
+	const { skills, projects, project } = data;
 </script>
 
 <div class="app">
-	<Header currentProject={data.project}></Header>
+	<Header selectedProject={project} {projects}></Header>
 	<ScatterPlot3D {skills}></ScatterPlot3D>
 	<main class="pb-10">
 		<!-- svelte-ignore slot_element_deprecated -->

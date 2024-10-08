@@ -8,3 +8,10 @@ export type SkillCheckpoint = {
 	color?: string;
 	checkpoint_id: string;
 };
+
+export type Project = {
+	id: string;
+	name: string;
+	end_date: string;
+	project_number: number;
+};

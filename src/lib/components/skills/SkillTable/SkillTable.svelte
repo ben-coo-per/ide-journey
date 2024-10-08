@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { SkillCheckpoint } from '../types';
+	import type { SkillCheckpoint } from '../../../types';
 	import IndicatorSphere from './IndicatorSphere.svelte';
 
 	const { skills }: { skills: SkillCheckpoint[] } = $props();
