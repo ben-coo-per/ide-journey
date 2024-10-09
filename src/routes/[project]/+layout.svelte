@@ -6,21 +6,14 @@
 
 	const { data } = $props();
 
-	const { skills, projects, project } = data;
+	const { projects, project } = data;
 </script>
 
 <div class="app">
 	<Header selectedProject={project} {projects}></Header>
-	<ScatterPlot3D {skills}></ScatterPlot3D>
 	<main class="pb-10">
 		<!-- svelte-ignore slot_element_deprecated -->
-		<div class="container mx-auto flex max-w-3xl flex-col gap-0">
-			<div
-				class="w-full rounded-lg border border-theme-2 border-opacity-25 bg-bg-1 text-left text-sm text-text-1"
-			>
-				<slot></slot>
-			</div>
-		</div>
+		<slot></slot>
 	</main>
 
 	<StarFieldBG></StarFieldBG>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import type { Project } from '$lib/types';
 	import ProjectTab from './ProjectTab.svelte';
 
@@ -9,6 +10,7 @@
 
 	function handleSelect(project: Project) {
 		selectedProject = project;
+		goto(`/${project.id}`);
 	}
 </script>
 

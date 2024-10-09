@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import * as THREE from 'three';
 	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
@@ -19,7 +19,7 @@
 	let camera: PerspectiveCamera;
 	let controls: OrbitControls;
 
-	const { skills }: { skills: SkillCheckpoint[] } = $props();
+	let { skills }: { skills: SkillCheckpoint[] } = $props();
 
 	let orbitTouched = $state(false);
 	let resetTimeout: any;
@@ -28,11 +28,13 @@
 	const resetDuration = 2; // Duration of the smooth movement in seconds
 
 	// Points data for the scatter plot
-	const pointsData = skills.map((skill) => ({
-		x: skill.interest - 4,
-		y: skill.level - 4,
-		...skill
-	}));
+	let pointsData = $derived(
+		skills.map((skill) => ({
+			x: skill.interest - 4,
+			y: skill.level - 4,
+			...skill
+		}))
+	);
 
 	// Function to create an axis (X, Y, or Z)
 	function createAxis(start: number[], end: number[], color: string) {
@@ -50,7 +52,7 @@
 		text: string,
 		size: number,
 		position: [number, number, number],
-		height = 0.05,
+		depth = 0.05,
 		color = '#DDFDFF'
 	) {
 		const fontLoader = new FontLoader();
@@ -62,7 +64,7 @@
 		const textGeometry = new TextGeometry(text, {
 			font: font,
 			size: size,
-			height: height
+			depth: depth
 		});
 
 		const textMaterial = new THREE.MeshBasicMaterial({ color: color });
@@ -71,31 +73,46 @@
 		return labelMesh;
 	}
 
-	onMount(async () => {
-		// Scene, camera, and renderer setup
-		scene = new THREE.Scene();
-		camera = new THREE.PerspectiveCamera(
-			50,
-			container!.clientWidth / container!.clientHeight,
-			0.1,
-			1000
-		);
-		renderer = new THREE.WebGLRenderer({ antialias: true });
-		renderer.setSize(container!.clientWidth, container!.clientHeight);
-		renderer.setClearColor('#000', 0);
+	function clearSpheres() {
+		const spheres = scene?.children?.filter((object) => object.userData?.isSphere);
+		const pointLabels = scene?.children?.filter((object) => object.userData?.isPointLabel);
 
-		container!.appendChild(renderer.domElement);
+		// Remove spheres - there's some bug with disposing of both spheres and point labels in the same loop...
+		spheres?.forEach((object) => {
+			if (object instanceof THREE.Mesh) {
+				// Dispose of geometry and material to free resources
+				if (object.geometry) object.geometry.dispose();
+				if (object.material) {
+					if (Array.isArray(object.material)) {
+						object.material.forEach((mat) => mat.dispose());
+					} else {
+						object.material.dispose();
+					}
+				}
+			}
+			scene.remove(object);
+		});
 
-		// Add lighting to the scene
-		const ambient = new THREE.AmbientLight('white', 1.5);
-		scene.add(ambient);
+		// Remove point labels
+		pointLabels?.forEach((object) => {
+			if (object instanceof THREE.Mesh) {
+				// Dispose of geometry and material to free resources
+				if (object.geometry) object.geometry.dispose();
+				if (object.material) {
+					if (Array.isArray(object.material)) {
+						object.material.forEach((mat) => mat.dispose());
+					} else {
+						object.material.dispose();
+					}
+				}
+			}
+			scene.remove(object);
+			object.removeFromParent();
+		});
+	}
 
-		const light1 = new THREE.PointLight('#DD60C5', 100, 100);
-		light1.position.set(5, 6, 1);
-		scene.add(light1);
-		const light2 = new THREE.PointLight('#DD60C5', 100, 100);
-		light2.position.set(3, 0, 5);
-		scene.add(light2);
+	$effect(() => {
+		clearSpheres();
 
 		const pulseOffsets = pointsData.map(() => Math.random() * Math.PI * 2);
 
@@ -123,10 +140,35 @@
 			label.userData.pulseOffset = pulseOffsets[i];
 			sphere.userData.isSphere = true;
 			label.userData.isPointLabel = true;
-
 			scene.add(label);
 			scene.add(sphere);
 		});
+	});
+
+	async function setUpScene() {
+		scene = new THREE.Scene();
+		camera = new THREE.PerspectiveCamera(
+			50,
+			container!.clientWidth / container!.clientHeight,
+			0.1,
+			1000
+		);
+		renderer = new THREE.WebGLRenderer({ antialias: true });
+		renderer.setSize(container!.clientWidth, container!.clientHeight);
+		renderer.setClearColor('#000', 0);
+
+		container!.appendChild(renderer.domElement);
+
+		// Add lighting to the scene
+		const ambient = new THREE.AmbientLight('white', 1.5);
+		scene.add(ambient);
+
+		const light1 = new THREE.PointLight('#DD60C5', 100, 100);
+		light1.position.set(5, 6, 1);
+		scene.add(light1);
+		const light2 = new THREE.PointLight('#DD60C5', 100, 100);
+		light2.position.set(3, 0, 5);
+		scene.add(light2);
 
 		// Create X, Y, and Z axes with range -axisLength to +axisLength
 		const xAxis = createAxis([-1 * axisLength, 0, 0], [axisLength, 0, 0], '#DD60C5');
@@ -169,7 +211,6 @@
 
 		scene.add(xLabel);
 		scene.add(negXLabel);
-
 		scene.add(negYLabel);
 		scene.add(yLabel);
 
@@ -219,6 +260,10 @@
 			// Start the reset animation
 			animateReset();
 		}
+	}
+
+	onMount(async () => {
+		setUpScene();
 
 		function animateCamera(time: number) {
 			if (orbitTouched) return;
@@ -234,7 +279,6 @@
 			camera.lookAt(new THREE.Vector3(0, 0, 0)); // Keep looking at the center
 		}
 
-		// Animation loop
 		const animate = () => {
 			requestAnimationFrame(animate);
 			const time = performance.now() * 0.001; // Use time to drive the animation
@@ -255,12 +299,12 @@
 				}
 			});
 
-			controls.update();
+			controls?.update();
 			renderer.render(scene, camera);
 		};
+
 		animate();
 
-		// Resize handling
 		const handleResize = () => {
 			const width = container!.clientWidth;
 			const height = container!.clientHeight;
