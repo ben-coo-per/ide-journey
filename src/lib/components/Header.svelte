@@ -16,7 +16,7 @@
 			>skills</a
 		>
 		<a href={'vision'} class="uppercase" class:active={$page.url.pathname.includes('/vision')}
-			>vision</a
+			>reflection</a
 		>
 	</div>
 </header>
